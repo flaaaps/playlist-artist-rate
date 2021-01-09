@@ -1,3 +1,9 @@
+/* 
+    Requires a valid spotify access token
+    from ../Express/spotify-token-generator 
+    to run correctly
+*/
+
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -58,7 +64,6 @@ function App() {
     };
     return (
         <div className="App">
-            <button onClick={() => setAccessToken('213')}>Invalidate</button>
             <h1>Ava Max x MGK Rate Calculator</h1>
             <p>Ava Max contributions: {countArtist('Ava Max')}</p>
             <p>Machine Gun Kelly contributions: {countArtist('Machine Gun Kelly')}</p>
