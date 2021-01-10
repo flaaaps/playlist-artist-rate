@@ -12,13 +12,10 @@
         "web-vitals": "^0.2.4"
     },
     "scripts": {
-        "start": "concurrently --kill-others \"npm run start-client\" \"npm run start-server\"",
+        "start": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
-        "eject": "react-scripts eject",
-        "start-client": "react-scripts start",
-        "start-server": "cd ../../Express/spotify-token-generator && node app.js",
-        "dev-client": "react-scripts start"
+        "eject": "react-scripts eject"
     },
     "eslintConfig": {
         "extends": [
