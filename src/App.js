@@ -8,9 +8,6 @@ import { generateSpotifyAccessToken, getPlaylistById } from './api';
 import { useState, useEffect } from 'react';
 import './App.css';
 
-import ReactPlaceholder from 'react-placeholder';
-import 'react-placeholder/lib/reactPlaceholder.css';
-
 function App() {
     const [tracks, setTracks] = useState([]);
     const [playlistDetails, setPlaylistDetails] = useState({});
@@ -112,10 +109,8 @@ function App() {
                 ) : (
                     <img src={playlistDetails.images[0].url} width="200" alt={playlistDetails.name} title={playlistDetails.name} />
                 )}
-                <ReactPlaceholder type="text" rows={2} ready={!loading} color="#E0E0E0">
-                    <h2>{playlistDetails.name}</h2>
-                    <p>{playlistDetails.description}</p>
-                </ReactPlaceholder>
+                <h2>{playlistDetails.name}</h2>
+                <p>{playlistDetails.description}</p>
             </div>
             <p>Ava Max contributions: {countArtist('Ava Max')}</p>
             <p>Machine Gun Kelly contributions: {countArtist('Machine Gun Kelly')}</p>
