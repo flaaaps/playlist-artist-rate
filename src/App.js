@@ -4,19 +4,27 @@
     to run correctly
 */
 
-import { generateSpotifyAccessToken } from './api';
+import { generateSpotifyAccessToken, getPlaylistById } from './api';
 import { useState, useEffect } from 'react';
 import './App.css';
 
+import ReactPlaceholder from 'react-placeholder';
+import 'react-placeholder/lib/reactPlaceholder.css';
+
 function App() {
     const [tracks, setTracks] = useState([]);
+    const [playlistDetails, setPlaylistDetails] = useState({});
     const [playlistId, setPlaylistId] = useState('6EThH5r1x2ALtpQIaCaeKi');
-    const [value, setValue] = useState('');
+    const [playlistError, setPlaylistError] = useState();
+
     const [accessToken, setAccessToken] = useState(null);
+
+    const [loading, setLoading] = useState(true);
 
     const artists = ['Ava Max', 'Machine Gun Kelly'];
 
     useEffect(() => {
+        setLoading(true);
         const fetchData = async () => {
             const getAccessToken = async () => {
                 const { access_token } = await generateSpotifyAccessToken();
@@ -24,21 +32,16 @@ function App() {
             };
 
             if (!accessToken) return await getAccessToken();
-            fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
-                headers: {
-                    Authorization: 'Bearer ' + accessToken,
-                },
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.error && data?.error?.status === 401) return setAccessToken(null);
-                    const tracks = data.tracks.items;
-                    setTracks(tracks);
-                    console.log(tracks, accessToken);
-                })
-                .catch(async (err) => {
-                    console.log(err);
-                });
+            const playlistResult = await getPlaylistById(playlistId);
+            if (playlistResult.success) {
+                setTracks(playlistResult.tracks);
+                setPlaylistDetails(playlistResult.details);
+                setPlaylistError(null);
+            } else {
+                const error = playlistResult.error;
+                setPlaylistError(error);
+            }
+            setLoading(false);
         };
 
         fetchData();
@@ -69,18 +72,17 @@ function App() {
         return songs;
     };
 
-    const handleInputChange = (e) => {
-        setValue(e.target.value);
-    };
-
+    let timeout = null;
     const handleKeyPress = (e) => {
-        if (e.keyCode === 13) {
-            setPlaylistId(validateInput(value));
-        }
+        clearTimeout(timeout);
+        timeout = setTimeout(function () {
+            setPlaylistId(validateInput(e.target.value));
+        }, 650);
     };
 
     const validateInput = (input) => {
         let playlistId;
+        if (input === '' || input.length === 0) return '5yACIst2lkJRtgMLBOqcJK';
         if (input.indexOf('http') > -1) {
             let splitted = input.split('/');
             const id = splitted[splitted.length - 1];
@@ -101,7 +103,20 @@ function App() {
         <div className="App">
             <h1>Ava Max x MGK Rate Calculator</h1>
 
-            <input placeholder="Enter a spotify playlist URI, URL or ID" value={value} onKeyDown={handleKeyPress} onChange={handleInputChange} />
+            <input placeholder="Enter a spotify playlist URI, URL or ID" onKeyUp={handleKeyPress} />
+            <span>{playlistError}</span>
+
+            <div className="playlist-information">
+                {loading ? (
+                    <img alt="Test" width="200" src="https://www.csuohio.edu/sites/default/files/1024px-Placeholder_no_text_svg.png" />
+                ) : (
+                    <img src={playlistDetails.images[0].url} width="200" alt={playlistDetails.name} title={playlistDetails.name} />
+                )}
+                <ReactPlaceholder type="text" rows={2} ready={!loading} color="#E0E0E0">
+                    <h2>{playlistDetails.name}</h2>
+                    <p>{playlistDetails.description}</p>
+                </ReactPlaceholder>
+            </div>
             <p>Ava Max contributions: {countArtist('Ava Max')}</p>
             <p>Machine Gun Kelly contributions: {countArtist('Machine Gun Kelly')}</p>
             <p>Quota/Rate: {artistRate(countArtist('Ava Max'), countArtist('Machine Gun Kelly'))}</p>

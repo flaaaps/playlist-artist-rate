@@ -34,6 +34,40 @@ export async function generateSpotifyAccessToken() {
         });
 }
 
+export async function getPlaylistById(playlistId) {
+    if (!accessToken) return 'No access token set';
+
+    return fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+        headers: {
+            Authorization: 'Bearer ' + accessToken,
+        },
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            console.log(data);
+            if (data?.error) {
+                if (data.error.status === 404) {
+                    console.log('ERROR 404');
+                    return { success: false, error: data.error.message };
+                }
+                return { success: false, error: 'Some error!' };
+            }
+            const tracks = data.tracks.items;
+            const playlistDetails = {
+                name: data.name,
+                description: data.description,
+                owner: data.owner,
+                followerCount: data.followers.total,
+                images: data.images,
+                link: data.href,
+            };
+            return { success: true, details: playlistDetails, tracks };
+        })
+        .catch(async (err) => {
+            console.log(err);
+        });
+}
+
 function checkIfExpired(generatedTime, expiresIn) {
     if (!generatedTime) return true;
     const expiresMs = expiresIn * 1000;
