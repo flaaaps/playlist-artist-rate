@@ -81,11 +81,9 @@ function App() {
     let playlistId;
     if (input === "" || input.length === 0) return null;
     if (input.indexOf("http") > -1) {
-      let split = input.split("/");
-      const id = split[split.length - 1];
-      // remove possible query params
-      split = id.split("?").reverse();
-      playlistId = split[split.length - 1];
+      const url = new URL(input);
+      const pathname = url.pathname.split("/");
+      playlistId = pathname[pathname.length - 1];
     } else if (input.indexOf("spotify:playlist:") > -1) {
       const split = input.split(":");
       playlistId = split[split.length - 1];
